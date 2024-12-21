@@ -27,6 +27,11 @@ on:
         required: false
         type: string
         default: ""
+      exclusions:
+        description: "Файл с командами/словами исключениями"
+        required: false
+        type: string
+        default: ""
 
 env:
   SDK_VERSION: "${{ inputs.sdk_version }}"
@@ -34,6 +39,7 @@ env:
   ES_VER: "${{ inputs.es_ver }}"
   PROJECT_NAME: "${{ inputs.project_name }}"
   GRAMMAR_CHECK_FILES: "${{ inputs.grammar_check_files }}"
+  EXCLUSIONS: "${{ inputs.exclusions }}"
 
 jobs:
   download:
@@ -124,6 +130,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Run Text Linter
-        uses: paych3ck/renpy_text_linter@v1.0.1
+        uses: paych3ck/renpy_text_linter@v1.0.2
         with:
           files: "${{ env.GRAMMAR_CHECK_FILES }}"
+          exclusions: "${{ env.EXCLUSIONS }}"
