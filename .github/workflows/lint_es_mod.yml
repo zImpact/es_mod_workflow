@@ -32,6 +32,11 @@ on:
         required: false
         type: string
         default: ""
+      output_type:
+        description: "Формат вывода"
+        required: false
+        type: string
+        default: ""
 
 env:
   SDK_VERSION: "${{ inputs.sdk_version }}"
@@ -40,6 +45,7 @@ env:
   PROJECT_NAME: "${{ inputs.project_name }}"
   GRAMMAR_CHECK_FILES: "${{ inputs.grammar_check_files }}"
   EXCLUSIONS: "${{ inputs.exclusions }}"
+  OUTPUT_TYPE: "${{ inputs.output_type }}"
 
 jobs:
   download:
@@ -130,7 +136,8 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Run Text Linter
-        uses: paych3ck/renpy_text_linter@v1.0.5
+        uses: paych3ck/renpy_text_linter@v1.0.6
         with:
           files: "${{ env.GRAMMAR_CHECK_FILES }}"
           exclusions: "${{ env.EXCLUSIONS }}"
+          output_type: "${{ env.OUTPUT_TYPE }}"
