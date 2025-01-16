@@ -118,12 +118,6 @@ jobs:
           ~/.renpy-sdk/renpy-${{ env.SDK_VERSION }}-sdk/renpy.sh "./game_files/Everlasting Summer/game/" lint lint_report.txt
         shell: bash
 
-      - name: Upload Lint Report
-        uses: actions/upload-artifact@v3
-        with:
-          name: lint-report
-          path: lint_report.txt
-
       - name: Display Lint Report
         run: |
           cat lint_report.txt
