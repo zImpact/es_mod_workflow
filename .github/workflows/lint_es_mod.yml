@@ -139,7 +139,7 @@ jobs:
 
   text-lint:
     runs-on: ubuntu-latest
-    needs: basic-lint
+    needs: download
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -153,13 +153,13 @@ jobs:
 
   marker-lint:
     runs-on: ubuntu-latest
-    needs: basic-lint
+    needs: download
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Run Marker Linter
-        uses: paych3ck/renpy_marker_linter@v1.0.0
+        uses: paych3ck/renpy_marker_linter@v1.0.1
         with:
           folder: "${{ env.FOLDER }}"
           markers: "${{ env.MARKERS }}"
