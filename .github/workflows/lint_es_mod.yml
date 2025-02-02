@@ -37,6 +37,16 @@ on:
         required: false
         type: string
         default: ""
+      folder:
+        description: "Папка для проверки на маркеры"
+        required: false
+        type: string
+        default: ""
+      markers:
+        description: "Путь к файлу маркеров"
+        required: false
+        type: string
+        default: ""
 
 env:
   SDK_VERSION: "${{ inputs.sdk_version }}"
@@ -46,6 +56,8 @@ env:
   GRAMMAR_CHECK_FILES: "${{ inputs.grammar_check_files }}"
   EXCLUSIONS: "${{ inputs.exclusions }}"
   OUTPUT_TYPE: "${{ inputs.output_type }}"
+  FOLDER: "${{ inputs.folder }}"
+  MARKERS: "${{ inputs.markers }}"
 
 jobs:
   download:
@@ -138,3 +150,16 @@ jobs:
           files: "${{ env.GRAMMAR_CHECK_FILES }}"
           exclusions: "${{ env.EXCLUSIONS }}"
           output_type: "${{ env.OUTPUT_TYPE }}"
+
+  marker-lint:
+    runs-on: ubuntu-latest
+    needs: basic-lint
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Run Marker Linter
+        uses: paych3ck/renpy_marker_linter@v1.0.0
+        with:
+          folder: "${{ env.FOLDER }}"
+          markers: "${{ env.MARKERS }}"
