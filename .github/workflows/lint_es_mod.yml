@@ -96,7 +96,34 @@ jobs:
           gdown --id "${{ env.GOOGLE_DRIVE_ID }}" -O "Everlasting Summer.zip"
           unzip -q "Everlasting Summer.zip" -d "./game_files"
           rm "Everlasting Summer.zip"
-          
+
+  marker-lint:
+    runs-on: ubuntu-latest
+    needs: download
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Run Marker Linter
+        uses: zImpact/renpy_marker_linter@v1.0.1
+        with:
+          folder: "${{ env.FOLDER }}"
+          markers: "${{ env.MARKERS }}"
+
+  text-lint:
+    runs-on: ubuntu-latest
+    needs: download
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Run Text Linter
+        uses: zImpact/renpy_text_linter@v1.0.10
+        with:
+          files: "${{ env.GRAMMAR_CHECK_FILES }}"
+          exclusions: "${{ env.EXCLUSIONS }}"
+          output_type: "${{ env.OUTPUT_TYPE }}"
+
   basic-lint:
     runs-on: ubuntu-latest
     needs: download
@@ -136,30 +163,3 @@ jobs:
           echo '```' >> $GITHUB_STEP_SUMMARY
           cat lint_report.txt >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
-
-  text-lint:
-    runs-on: ubuntu-latest
-    needs: download
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Run Text Linter
-        uses: paych3ck/renpy_text_linter@v1.0.10
-        with:
-          files: "${{ env.GRAMMAR_CHECK_FILES }}"
-          exclusions: "${{ env.EXCLUSIONS }}"
-          output_type: "${{ env.OUTPUT_TYPE }}"
-
-  marker-lint:
-    runs-on: ubuntu-latest
-    needs: download
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Run Marker Linter
-        uses: paych3ck/renpy_marker_linter@v1.0.1
-        with:
-          folder: "${{ env.FOLDER }}"
-          markers: "${{ env.MARKERS }}"
