@@ -1,0 +1,51 @@
+name: Deploy to Steam Workshop
+
+on:
+  workflow_call:
+    inputs:
+      steam_config_path:
+        description: "Путь к конфигу Steam Workshop для данного мода"
+        required: true
+        type: string
+      lint_workflow_file:
+        description: "Имя файла lint workflow"
+        required: false
+        type: string
+        default: "lint_es_mod.yml"
+      branch:
+        description: "Ветка для проверки статуса lint workflow"
+        required: false
+        type: string
+        default: "main"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Check lint status
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          chmod +x ./check_lint_status.sh
+          ./check_lint_status.sh "${{ inputs.lint_workflow_file }}" "${{ inputs.branch }}"
+
+      - name: Install SteamCMD and jq
+        run: |
+          sudo dpkg --add-architecture i386
+          sudo apt-get update
+          sudo apt-get install -y steamcmd jq
+
+      - name: Generate Steam Guard 2FA code
+        id: steam-2fa
+        uses: CyberAndrii/steam-totp@v1
+        with:
+          shared_secret: ${{ secrets.STEAM_SHARED_SECRET }}
+
+      - name: Deploy to Steam Workshop
+        run: |
+          chmod +x ./deploy_to_steam.sh
+          ./deploy_to_steam.sh "${{ secrets.STEAM_USERNAME }}" "${{ secrets.STEAM_PASSWORD }}" "${{ steps.steam-2fa.outputs.code }}" "${{ inputs.steam_config_path }}"
