@@ -25,13 +25,22 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Checkout scripts
+        uses: actions/checkout@v3
+        with:
+          repository: zImpact/es_mod_workflow
+          path: scripts
+          sparse-checkout: |
+            check_lint_status.sh
+            deploy_to_steam.sh
+
       - name: Check lint status
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
-          chmod +x ./check_lint_status.sh
-          ./check_lint_status.sh "${{ inputs.lint_workflow_file }}" "${{ inputs.branch }}"
+          chmod +x ./scripts/check_lint_status.sh
+          ./scripts/check_lint_status.sh "${{ inputs.lint_workflow_file }}" "${{ inputs.branch }}"
 
       - name: Install SteamCMD and jq
         run: |
@@ -47,5 +56,5 @@ jobs:
 
       - name: Deploy to Steam Workshop
         run: |
-          chmod +x ./deploy_to_steam.sh
-          ./deploy_to_steam.sh "${{ secrets.STEAM_USERNAME }}" "${{ secrets.STEAM_PASSWORD }}" "${{ steps.steam-2fa.outputs.code }}" "${{ inputs.steam_config_path }}"
+          chmod +x ./scripts/deploy_to_steam.sh
+          ./scripts/deploy_to_steam.sh "${{ secrets.STEAM_USERNAME }}" "${{ secrets.STEAM_PASSWORD }}" "${{ steps.steam-2fa.outputs.code }}" "${{ inputs.steam_config_path }}"
