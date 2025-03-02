@@ -173,7 +173,7 @@ jobs:
   steam-workshop-deploy:
     needs: basic-lint
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'workflow_dispatch' }}
+    environment: manual
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
