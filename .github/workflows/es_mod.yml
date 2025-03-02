@@ -1,4 +1,4 @@
-name: Lint ES Mod
+name: ES Mod
 
 on:
   workflow_call:
@@ -47,6 +47,12 @@ on:
         required: false
         type: string
         default: ""
+      steam_workshop_config_path:
+        description: "Путь к конфигу Steam Workshop"
+        required: true
+        type: string
+
+  workflow_dispatch:
 
 env:
   SDK_VERSION: "${{ inputs.sdk_version }}"
@@ -163,3 +169,26 @@ jobs:
           echo '```' >> $GITHUB_STEP_SUMMARY
           cat lint_report.txt >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
+
+  steam-workshop-deploy:
+    needs: basic-lint
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install SteamCMD and jq
+        run: |
+          sudo dpkg --add-architecture i386
+          sudo apt-get update
+          sudo apt-get install -y steamcmd jq
+
+      - name: Generate Steam Guard 2FA code
+        id: steam-2fa
+        uses: CyberAndrii/steam-totp@v1
+        with:
+          shared_secret: ${{ secrets.STEAM_SHARED_SECRET }}
+
+      - name: Deploy to Steam Workshop
+        run: ./deploy_to_steam.sh "${{ secrets.STEAM_USERNAME }}" "${{ secrets.STEAM_PASSWORD }}" "${{ steps.steam-2fa.outputs.code }}" "${{ inputs.steam_workshop_config_path }}"
