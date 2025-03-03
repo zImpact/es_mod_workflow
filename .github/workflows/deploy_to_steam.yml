@@ -17,6 +17,10 @@ on:
         required: false
         type: string
         default: "main"
+    secrets:
+      STEAM_SHARED_SECRET:
+          description: "Steam Shared Secret"
+          required: true
 
 jobs:
   deploy:
