@@ -19,8 +19,14 @@ on:
         default: "main"
     secrets:
       STEAM_SHARED_SECRET:
-          description: "Steam Shared Secret"
-          required: true
+        description: "Steam Shared Secret"
+        required: true
+      STEAM_USERNAME:
+        description: "Steam Username"
+        required: true
+      STEAM_PASSWORD:
+        description: "Steam Password"
+        required: true
 
 jobs:
   deploy:
