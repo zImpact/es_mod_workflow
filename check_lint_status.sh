@@ -28,7 +28,7 @@ echo "ID последнего запуска workflow: $run_id"
 jobs_response=$(curl -s -H "Authorization: token ${GITHUB_TOKEN}" \
   "https://api.github.com/repos/${REPO}/actions/runs/${run_id}/jobs")
 
-job_conclusion=$(echo "$jobs_response" | jq -r --arg JOB_NAME "$JOB_NAME" '.jobs[] | select(.name==$JOB_NAME) | .conclusion')
+job_conclusion=$(echo "$jobs_response" | jq -r --arg JOB_NAME "$JOB_NAME" '.jobs[] | select(.name | contains($JOB_NAME)) | .conclusion')
 
 if [ -z "$job_conclusion" ] || [ "$job_conclusion" == "null" ]; then
   echo "Job с именем '${JOB_NAME}' не найден в запуске ${run_id}"
