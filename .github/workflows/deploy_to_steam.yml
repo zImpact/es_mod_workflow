@@ -40,7 +40,7 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
           chmod +x ./scripts/check_lint_status.sh
-          ./scripts/check_lint_status.sh "${{ inputs.lint_workflow_file }}" "${{ inputs.branch }}"
+          ./scripts/check_lint_status.sh "${{ inputs.lint_workflow_file }}" "${{ inputs.branch }}" "basic-lint"
 
       - name: Install SteamCMD and jq
         run: |
