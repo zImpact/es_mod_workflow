@@ -65,5 +65,8 @@ else
 VDF
 fi
 
+echo "workshop.vdf contents for debug:"
+cat workshop.vdf
+
 steamcmd +login "$STEAM_USER" "$STEAM_PASS" "$STEAM_2FA" \
          +workshop_build_item "$(pwd)/workshop.vdf" +quit
