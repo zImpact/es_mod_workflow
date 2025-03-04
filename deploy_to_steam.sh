@@ -22,13 +22,30 @@ VISIBILITY=$(yq eval '.visibility' "$CONFIG_PATH")
 TITLE=$(yq eval '.title' "$CONFIG_PATH")
 CHANGE_NOTE=$(yq eval '.changenote' "$CONFIG_PATH")
 APPID=$(yq eval '.appid' "$CONFIG_PATH")
+PREVIEW_FILENAME_PATH=$(yq eval '.previewfile' "$CONFIG_PATH")
+PREVIEW_FILE="$(pwd)/${PREVIEW_FILENAME_PATH}"
+PROJECT_NAME=$(yq eval '.project_name' "$CONFIG_PATH")
+EXCLUSIONS=$(yq eval '.exclusions[]' "$CONFIG_PATH")
 
 if [ -z "$APPID" ] || [ "$APPID" = "null" ]; then
   echo "Ошибка: Steam appid не указан в $CONFIG_PATH"
   exit 1
 fi
 
-CONTENT_FOLDER="$(pwd)"
+BUILD_FOLDER="$(pwd)/${PROJECT_NAME}"
+echo "Подготавливаем папку сборки: ${BUILD_FOLDER}"
+rm -rf "$BUILD_FOLDER"
+mkdir -p "$BUILD_FOLDER"
+
+RSYNC_EXCLUDES=""
+for pattern in $EXCLUSIONS; do
+  RSYNC_EXCLUDES+=" --exclude=${pattern}"
+done
+echo "Исключения для rsync: ${RSYNC_EXCLUDES}"
+
+rsync -av $RSYNC_EXCLUDES "$(pwd)/" "$BUILD_FOLDER/"
+
+CONTENT_FOLDER="$BUILD_FOLDER"
 
 if [ "$PUBLISHED_ID" = "null" ] || [ -z "$PUBLISHED_ID" ]; then
   echo "Публикуем новый элемент Workshop для appid $APPID"
@@ -36,9 +53,6 @@ if [ "$PUBLISHED_ID" = "null" ] || [ -z "$PUBLISHED_ID" ]; then
 else
   echo "Обновляем существующий элемент Workshop с ID $PUBLISHED_ID"
 fi
-
-PREVIEW_FILENAME_PATH=$(yq eval '.previewfile' "$CONFIG_PATH")
-PREVIEW_FILE="${CONTENT_FOLDER}/${PREVIEW_FILENAME_PATH}"
 
 cat > workshop.vdf <<VDF
 "workshopitem"
