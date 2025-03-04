@@ -33,8 +33,8 @@ CONTENT_FOLDER="$(pwd)"
 if [ "$PUBLISHED_ID" = "null" ] || [ -z "$PUBLISHED_ID" ]; then
   echo "Публикуем новый элемент Workshop для appid $APPID"
   PUBLISHED_ID=0
-  PREVIEW_FILENAME=$(yq eval '.previewfile' "$CONFIG_PATH")
-  PREVIEW_RELATIVE_PATH="deploy/${PREVIEW_FILENAME}"
+  PREVIEW_FILENAME_PATH=$(yq eval '.previewfile' "$CONFIG_PATH")
+  PREVIEW_FILE="${CONTENT_FOLDER}/${PREVIEW_FILENAME_PATH}"
   
   cat > workshop.vdf <<VDF
 "workshopitem"
@@ -46,7 +46,7 @@ if [ "$PUBLISHED_ID" = "null" ] || [ -z "$PUBLISHED_ID" ]; then
   "title" "$TITLE"
   "description" "$DESCRIPTION"
   "changenote" "$CHANGE_NOTE"
-  "previewfile" "$PREVIEW_RELATIVE_PATH"
+  "previewfile" "$PREVIEW_FILE"
 }
 VDF
 else
