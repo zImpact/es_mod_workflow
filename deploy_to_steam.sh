@@ -70,7 +70,7 @@ cat > workshop.vdf <<VDF
 {
   "appid" "$APPID"
   "publishedfileid" "$PUBLISHED_ID"
-  "contentfolder" "$CONTENT_FOLDER"
+  "contentfolder" "$BUILD_PARENT"
   "visibility" "$VISIBILITY"
   "title" "$TITLE"
   "description" "$DESCRIPTION"
