@@ -33,10 +33,14 @@ CONTENT_FOLDER="$(pwd)"
 if [ "$PUBLISHED_ID" = "null" ] || [ -z "$PUBLISHED_ID" ]; then
   echo "Публикуем новый элемент Workshop для appid $APPID"
   PUBLISHED_ID=0
-  PREVIEW_FILENAME_PATH=$(yq eval '.previewfile' "$CONFIG_PATH")
-  PREVIEW_FILE="${CONTENT_FOLDER}/${PREVIEW_FILENAME_PATH}"
-  
-  cat > workshop.vdf <<VDF
+else
+  echo "Обновляем существующий элемент Workshop с ID $PUBLISHED_ID"
+fi
+
+PREVIEW_FILENAME_PATH=$(yq eval '.previewfile' "$CONFIG_PATH")
+PREVIEW_FILE="${CONTENT_FOLDER}/${PREVIEW_FILENAME_PATH}"
+
+cat > workshop.vdf <<VDF
 "workshopitem"
 {
   "appid" "$APPID"
@@ -49,23 +53,8 @@ if [ "$PUBLISHED_ID" = "null" ] || [ -z "$PUBLISHED_ID" ]; then
   "previewfile" "$PREVIEW_FILE"
 }
 VDF
-else
-  echo "Обновляем существующий элемент Workshop с ID $PUBLISHED_ID"
-  cat > workshop.vdf <<VDF
-"workshopitem"
-{
-  "appid" "$APPID"
-  "publishedfileid" "$PUBLISHED_ID"
-  "contentfolder" "$CONTENT_FOLDER"
-  "visibility" "$VISIBILITY"
-  "title" "$TITLE"
-  "description" "$DESCRIPTION"
-  "changenote" "$CHANGE_NOTE"
-}
-VDF
-fi
 
-echo "workshop.vdf contents for debug:"
+echo "Вывод workshop.vdf для дебага:"
 cat workshop.vdf
 
 steamcmd +login "$STEAM_USER" "$STEAM_PASS" "$STEAM_2FA" \
