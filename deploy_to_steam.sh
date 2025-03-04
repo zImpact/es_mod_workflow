@@ -42,6 +42,7 @@ for pattern in $EXCLUSIONS; do
   RSYNC_EXCLUDES+=" --exclude=${pattern}"
 done
 RSYNC_EXCLUDES+=" --exclude=${PROJECT_NAME}"
+RSYNC_EXCLUDES+=" --exclude=build"
 echo "Исключения для rsync: ${RSYNC_EXCLUDES}"
 
 BUILD_PARENT="${SOURCE_FOLDER}/build"
