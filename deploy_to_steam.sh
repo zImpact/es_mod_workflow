@@ -10,10 +10,10 @@ if [ ! -f "$CONFIG_PATH" ]; then
   exit 1
 fi
 
-if [ -f "README.MD" ]; then
-  DESCRIPTION=$(sed ':a;N;$!ba;s/\n/ /g' README.MD)
+if [ -f "README.md" ]; then
+  DESCRIPTION=$(sed ':a;N;$!ba;s/\n/ /g' README.md)
 else
-  echo "Ошибка: README.MD не найден!"
+  echo "Ошибка: README.md не найден!"
   exit 1
 fi
 
@@ -28,21 +28,25 @@ if [ -z "$APPID" ] || [ "$APPID" = "null" ]; then
   exit 1
 fi
 
+CONTENT_FOLDER="$(pwd)"
+
 if [ "$PUBLISHED_ID" = "null" ] || [ -z "$PUBLISHED_ID" ]; then
   echo "Публикуем новый элемент Workshop для appid $APPID"
   PUBLISHED_ID=0
-  PREVIEWFILE=$(yq eval '.previewfile' "$CONFIG_PATH")
+  PREVIEW_FILENAME=$(yq eval '.previewfile' "$CONFIG_PATH")
+  PREVIEW_RELATIVE_PATH="deploy/${PREVIEW_FILENAME}"
+  
   cat > workshop.vdf <<VDF
 "workshopitem"
 {
   "appid" "$APPID"
   "publishedfileid" "$PUBLISHED_ID"
-  "contentfolder" "$(pwd)"
+  "contentfolder" "$CONTENT_FOLDER"
   "visibility" "$VISIBILITY"
   "title" "$TITLE"
   "description" "$DESCRIPTION"
   "changenote" "$CHANGE_NOTE"
-  "previewfile" "$PREVIEWFILE"
+  "previewfile" "$PREVIEW_RELATIVE_PATH"
 }
 VDF
 else
@@ -52,7 +56,7 @@ else
 {
   "appid" "$APPID"
   "publishedfileid" "$PUBLISHED_ID"
-  "contentfolder" "$(pwd)"
+  "contentfolder" "$CONTENT_FOLDER"
   "visibility" "$VISIBILITY"
   "title" "$TITLE"
   "description" "$DESCRIPTION"
