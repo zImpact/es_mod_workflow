@@ -10,12 +10,18 @@ if [ ! -f "$CONFIG_PATH" ]; then
   exit 1
 fi
 
-PUBLISHED_ID=$(jq -r '.publishedfileid' "$CONFIG_PATH")
-VISIBILITY=$(jq -r '.visibility' "$CONFIG_PATH")
-TITLE=$(jq -r '.title' "$CONFIG_PATH")
-DESCRIPTION=$(jq -r '.description' "$CONFIG_PATH")
-CHANGE_NOTE=$(jq -r '.changenote' "$CONFIG_PATH")
-APPID=$(jq -r '.appid' "$CONFIG_PATH")
+if [ -f "README.MD" ]; then
+  DESCRIPTION=$(sed ':a;N;$!ba;s/\n/ /g' README.MD)
+else
+  echo "Ошибка: README.MD не найден!"
+  exit 1
+fi
+
+PUBLISHED_ID=$(yq eval '.publishedfileid' "$CONFIG_PATH")
+VISIBILITY=$(yq eval '.visibility' "$CONFIG_PATH")
+TITLE=$(yq eval '.title' "$CONFIG_PATH")
+CHANGE_NOTE=$(yq eval '.changenote' "$CONFIG_PATH")
+APPID=$(yq eval '.appid' "$CONFIG_PATH")
 
 if [ -z "$APPID" ] || [ "$APPID" = "null" ]; then
   echo "Ошибка: Steam appid не указан в $CONFIG_PATH"
@@ -25,11 +31,23 @@ fi
 if [ "$PUBLISHED_ID" = "null" ] || [ -z "$PUBLISHED_ID" ]; then
   echo "Публикуем новый элемент Workshop для appid $APPID"
   PUBLISHED_ID=0
+  PREVIEWFILE=$(yq eval '.previewfile' "$CONFIG_PATH")
+  cat > workshop.vdf <<VDF
+"workshopitem"
+{
+  "appid" "$APPID"
+  "publishedfileid" "$PUBLISHED_ID"
+  "contentfolder" "$(pwd)"
+  "visibility" "$VISIBILITY"
+  "title" "$TITLE"
+  "description" "$DESCRIPTION"
+  "changenote" "$CHANGE_NOTE"
+  "previewfile" "$PREVIEWFILE"
+}
+VDF
 else
   echo "Обновляем существующий элемент Workshop с ID $PUBLISHED_ID"
-fi
-
-cat > workshop.vdf <<VDF
+  cat > workshop.vdf <<VDF
 "workshopitem"
 {
   "appid" "$APPID"
@@ -41,6 +59,7 @@ cat > workshop.vdf <<VDF
   "changenote" "$CHANGE_NOTE"
 }
 VDF
+fi
 
 steamcmd +login "$STEAM_USER" "$STEAM_PASS" "$STEAM_2FA" \
          +workshop_build_item "$(pwd)/workshop.vdf" +quit

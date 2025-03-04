@@ -55,8 +55,12 @@ jobs:
       - name: Install SteamCMD
         uses: CyberAndrii/setup-steamcmd@v1
 
-      - name: Install jq
-        run: sudo apt-get install -y jq
+      - name: Install jq and yq
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
+          sudo wget https://github.com/mikefarah/yq/releases/download/v4.30.8/yq_linux_amd64 -O /usr/local/bin/yq
+          sudo chmod +x /usr/local/bin/yq
 
       - name: Generate Steam Guard 2FA code
         id: steam-2fa
