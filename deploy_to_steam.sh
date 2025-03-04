@@ -47,7 +47,6 @@ echo "Исключения для rsync: ${RSYNC_EXCLUDES}"
 BUILD_PARENT="${SOURCE_FOLDER}/build"
 BUILD_FOLDER="${BUILD_PARENT}/${PROJECT_NAME}"
 
-BUILD_FOLDER="${SOURCE_FOLDER}/${PROJECT_NAME}"
 echo "Подготавливаем папку сборки: ${BUILD_FOLDER}"
 rm -rf "$BUILD_FOLDER"
 mkdir -p "$BUILD_FOLDER"
