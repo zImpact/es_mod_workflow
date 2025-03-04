@@ -32,18 +32,27 @@ if [ -z "$APPID" ] || [ "$APPID" = "null" ]; then
   exit 1
 fi
 
-BUILD_FOLDER="$(pwd)/${PROJECT_NAME}"
-echo "Подготавливаем папку сборки: ${BUILD_FOLDER}"
-rm -rf "$BUILD_FOLDER"
-mkdir -p "$BUILD_FOLDER"
+SOURCE_FOLDER="$(pwd)"
+echo "Исходная директория: $SOURCE_FOLDER"
+echo "Содержимое исходной директории:"
+ls -la "$SOURCE_FOLDER"
 
 RSYNC_EXCLUDES=""
 for pattern in $EXCLUSIONS; do
   RSYNC_EXCLUDES+=" --exclude=${pattern}"
 done
+RSYNC_EXCLUDES+=" --exclude=${PROJECT_NAME}"
 echo "Исключения для rsync: ${RSYNC_EXCLUDES}"
 
-rsync -av $RSYNC_EXCLUDES "$(pwd)/" "$BUILD_FOLDER/"
+BUILD_FOLDER="${SOURCE_FOLDER}/${PROJECT_NAME}"
+echo "Подготавливаем папку сборки: ${BUILD_FOLDER}"
+rm -rf "$BUILD_FOLDER"
+mkdir -p "$BUILD_FOLDER"
+
+rsync -av $RSYNC_EXCLUDES "${SOURCE_FOLDER}/" "$BUILD_FOLDER/"
+
+echo "Содержимое папки сборки ($BUILD_FOLDER):"
+ls -la "$BUILD_FOLDER"
 
 CONTENT_FOLDER="$BUILD_FOLDER"
 
