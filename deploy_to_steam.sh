@@ -11,7 +11,7 @@ if [ ! -f "$CONFIG_PATH" ]; then
 fi
 
 if [ -f "README.md" ]; then
-  DESCRIPTION=$(sed ':a;N;$!ba;s/\n/ /g' README.md)
+  DESCRIPTION=$(python3 -c "from md2steam import markdown_to_steam_bbcode; print(markdown_to_steam_bbcode(open('README.md').read()))")
 else
   echo "Ошибка: README.md не найден!"
   exit 1

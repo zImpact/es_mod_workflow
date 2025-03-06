@@ -62,6 +62,12 @@ jobs:
           sudo wget https://github.com/mikefarah/yq/releases/download/v4.30.8/yq_linux_amd64 -O /usr/local/bin/yq
           sudo chmod +x /usr/local/bin/yq
 
+      - name: Setup Python and install md2steam
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3 python3-pip
+          pip3 install md2steam
+        
       - name: Generate Steam Guard 2FA code
         id: steam-2fa
         uses: CyberAndrii/steam-totp@v1
