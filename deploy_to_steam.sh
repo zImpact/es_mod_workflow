@@ -100,5 +100,5 @@ VDF
 echo "Вывод workshop.vdf для дебага:"
 cat workshop.vdf
 
-steamcmd +login "$STEAM_USER" "$STEAM_PASS" "$STEAM_2FA" \
+steamcmd +login "$STEAM_USER" "$STEAM_PASS" +set_steam_guard_code "$STEAM_2FA" \
          +workshop_build_item "$(pwd)/workshop.vdf" +quit
