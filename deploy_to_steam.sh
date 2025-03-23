@@ -57,22 +57,6 @@ rsync -av $RSYNC_EXCLUDES "${SOURCE_FOLDER}/" "$BUILD_FOLDER/"
 echo "Содержимое папки сборки ($BUILD_FOLDER):"
 ls -la "$BUILD_FOLDER"
 
-tags_block=""
-index=0
-for tag in $(yq eval '.tags[]' "$CONFIG_PATH"); do
-  tags_block="${tags_block}  \"${index}\" \"${tag}\""$'\n'
-  index=$((index+1))
-done
-
-if [ -n "$tags_block" ]; then
-  TAGS_VDF=$(cat <<EOF
-  "tags"
-  {
-${tags_block}  }
-EOF
-)
-fi
-
 CONTENT_FOLDER="$BUILD_FOLDER"
 
 if [ "$PUBLISHED_ID" = "null" ] || [ -z "$PUBLISHED_ID" ]; then
@@ -93,7 +77,6 @@ cat > workshop.vdf <<VDF
   "description" "$DESCRIPTION"
   "changenote" "$CHANGE_NOTE"
   "previewfile" "$PREVIEW_FILE"
-$(if [ -n "$TAGS_VDF" ]; then echo "$TAGS_VDF"; fi)
 }
 VDF
 
