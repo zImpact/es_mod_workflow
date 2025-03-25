@@ -148,7 +148,7 @@ jobs:
       - name: Copy mod files to game directory
         run: |
           mkdir -p "./game_files/Everlasting Summer/game/${{ env.PROJECT_NAME }}"
-          cp -r ./code ./images ./sounds "./game_files/Everlasting Summer/game/${{ env.PROJECT_NAME }}"
+          rsync -av --exclude='game_files' --exclude='.git' . "./game_files/Everlasting Summer/game/${{ env.PROJECT_NAME }}"
           echo "Folder contents:"
           ls "./game_files/Everlasting Summer/game"
 
