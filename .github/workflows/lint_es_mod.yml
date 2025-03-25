@@ -47,6 +47,21 @@ on:
         required: false
         type: string
         default: ""
+      run_marker_lint:
+        description: "Запуск marker-lint"
+        required: false
+        type: boolean
+        default: true
+      run_text_lint:
+        description: "Запуск text-lint"
+        required: false
+        type: boolean
+        default: true
+      run_basic_lint:
+        description: "Запуск basic-lint"
+        required: false
+        type: boolean
+        default: true
 
 env:
   SDK_VERSION: "${{ inputs.sdk_version }}"
@@ -58,6 +73,9 @@ env:
   OUTPUT_TYPE: "${{ inputs.output_type }}"
   FOLDER: "${{ inputs.folder }}"
   MARKERS: "${{ inputs.markers }}"
+  RUN_MARKET_LINT: "${{ inputs.run_marker_lint }}"
+  RUN_TEXT_LINT: "${{ inputs.run_text_lint }}"
+  RUN_BASIC_LINT: "${{ inputs.run_basic_lint }}"
 
 jobs:
   download:
@@ -98,6 +116,7 @@ jobs:
           rm "Everlasting Summer.zip"
 
   marker-lint:
+    if: ${{ inputs.run_marker_lint == true }}
     runs-on: ubuntu-latest
     needs: download
     steps:
@@ -111,6 +130,7 @@ jobs:
           markers: "${{ env.MARKERS }}"
 
   text-lint:
+    if: ${{ inputs.run_text_lint == true }}
     runs-on: ubuntu-latest
     needs: download
     steps:
@@ -125,6 +145,7 @@ jobs:
           output_type: "${{ env.OUTPUT_TYPE }}"
 
   basic-lint:
+    if: ${{ inputs.run_basic_lint == true }}
     runs-on: ubuntu-latest
     needs: download
     steps:
