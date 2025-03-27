@@ -21,9 +21,9 @@ on:
         description: "Версия архива Бесконечного лета для кэширования"
         required: true
         type: string
-        default: "7"
+        default: "1"
       grammar_check_files:
-        description: "Список файлов для проверки орфографии, разделённых пробелами"
+        description: "Список файлов для проверки орфографии, разделённых пробелами (так же можно передать название папки)"
         required: false
         type: string
         default: ""
@@ -31,22 +31,18 @@ on:
         description: "Файл с командами/словами исключениями"
         required: false
         type: string
-        default: ""
       output_type:
         description: "Формат вывода"
         required: false
         type: string
-        default: ""
       folder:
         description: "Папка для проверки на маркеры"
         required: false
         type: string
-        default: ""
       markers:
         description: "Путь к файлу маркеров"
         required: false
         type: string
-        default: ""
       run_marker_lint:
         description: "Запуск marker-lint"
         required: false
@@ -92,7 +88,7 @@ jobs:
           key: ${{ runner.os }}-renpy-sdk-${{ env.SDK_VERSION }}
 
       - name: Download Ren'Py SDK
-        if: steps.cache-sdk.outputs.cache-hit != 'true'
+        if: steps.cache-sdk.outputs.cache-hit != true
         run: |
           mkdir -p ~/.renpy-sdk
           wget -q "https://www.renpy.org/dl/${{ env.SDK_VERSION }}/renpy-${{ env.SDK_VERSION }}-sdk.tar.bz2"
@@ -107,7 +103,7 @@ jobs:
           key: ${{ runner.os }}-everlasting-summer-${{ env.ES_VER }}-${{ env.GOOGLE_DRIVE_ID }}
 
       - name: Download Everlasting Summer
-        if: steps.cache-game.outputs.cache-hit != 'true'
+        if: steps.cache-game.outputs.cache-hit != true
         run: |
           mkdir -p ./game_files
           pip install gdown
@@ -138,7 +134,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Run Text Linter
-        uses: zImpact/renpy_text_linter@v1.0.10
+        uses: zImpact/renpy_text_linter@v1.0.11
         with:
           files: "${{ env.GRAMMAR_CHECK_FILES }}"
           exclusions: "${{ env.EXCLUSIONS }}"
