@@ -25,7 +25,7 @@
 ## Добавление workflow *lint_es_mod.yml* к себе в репозиторий
 1. Создание файла вызова workflow
 
-В корне репозитория по пути `.github/workflows/` необходимо создать файл, например `.lint.yml` со следующим содержимым:
+В корне репозитория по пути `.github/workflows/` необходимо создать файл, например `lint.yml` со следующим содержимым:
 ```yml
 name: Lint ES Mod
 
@@ -64,7 +64,8 @@ jobs:
       ```yaml
       grammar_check_files: |
           code/bsar_sotp_scenario.rpy
-          code/bsar_insomnia_scenario.rpy```
+          code/bsar_insomnia_scenario.rpy
+      ```
     * Проверка целой папки
       ```yaml
       grammar_check_files: code/scenario
