@@ -96,22 +96,76 @@ markers:
 * `run_basic_lint`: нужно ли запускать линтер кода (по умолчанию true)  
 
 ## Деплой мода в Steam Workshop (workflow *deploy_to_steam.yml*)
-### Первичная загрузка
-```
-appid: "331470"
-publishedfileid: "null"
-visibility: "1"
-title: "Мой крутой мод"
-changenote: "Добавлены новые функции и исправлены ошибки."
-previewfile: "deploy/avatar.png"
+Данный workflow предоставляет возможность публиковать или обновлять предмет в мастерской Steam напрямую из GitHub-репозитория.
+
+## Добавление workflow *deploy_to_steam.yml* к себе в репозиторий
+1. Создание секретов 
+В настройках репозитория - `Settings -> Secrets and variables -> Actions -> Repository secrets` необходимо добавить следующие секреты:
+* `STEAM_USERNAME`: логин аккаунта, с которого будет публиковаться предмет
+* `STEAM_PASSWORD`: пароль от аккаунта
+* `STEAM_SHARED_SECRET`: shared_secret от аккаунта, получить можно, например, используя *Steam Desktop Authenticator*
+
+2. Создание конфига деплоя
+В любом удобном месте внутри репозитория необходимо создать файл формата `.yml` со следующим содержимым:
+```yaml
+appid: "331470"                    # ID игры в Steam - для "Бесконечного лета" это 331470
+publishedfileid: "null"            # ID мода - null или ID опубликованного предмета      
+visibility: "2"                    # Видимость - 0: публичный, 1: для друзей, 2: для себя               
+title: "Мой мод!"                  # Название предмета
+changenote: "Добавили новый текст" # Описание изменений
+previewfile: "deploy/avatar.png"   # Аватар предмета
+project_name: "project"            # Название мода
+exclusions:                        # Файлы, которые НЕ БУДУТ загружены в мастерскую
+  - ".git"
+  - ".github"
+  - ".gitattributes"
+  - ".vscode"
+  - "scripts"
+  - "steamcmd"
+  - "build"
+  - "README.md"
+  - "deploy"
+
 ```
 
-### Обновление
+3. Настройка параметров
+* `appid`: ID игры в Steam, предмет для которой будет загружен. Для "Бесконечного лета" нужно установить **331470**
+* `publishedfileid`: ID предмета в мастерской. При первой загрузке нужно указать значение `null` для создания нового предмета. При обновлении мода, значение поля нужно поменять на ID созданного предмета, например `3418334944`
+* `visibility`: видимость предмета в мастерской. 
+  * **0**: для всех
+  * **1**: только друзьям
+  * **2**: для себя
+* `title`: название предмета в мастерской
+* `changenote`: описание обновления
+* `previewfile`: изображение предмета
+* `project_name`: название мода, будет использоваться для формирования пути, куда копируются файлы репозитория для проверки. Например, если мод лежит по пути `Everlasting Summer/game/MyMod`, то в качестве значения параметра `project_name` нужно указать `MyMod`
+* `exclusions`: список файлов, которые не будут загружены в мастерскую
+
+4. Создание файла вызова workflow
+В корне репозитория по пути `.github/workflows/` необходимо создать файл, например `deploy.yml` со следующим содержимым:
+```yml
+name: Deploy to Steam Workshop
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    uses: zImpact/es_mod_workflow/.github/workflows/deploy_to_steam.yml@v2.0.7
+    with:
+      steam_config_path: "deploy/config.yml"
+      lint_workflow_file: "lint.yml"
+      branch: "main"
+      check_lint_status: false
+    secrets:
+      STEAM_USERNAME: "${{ secrets.STEAM_USERNAME }}"
+      STEAM_PASSWORD: "${{ secrets.STEAM_PASSWORD }}"
+      STEAM_SHARED_SECRET: "${{ secrets.STEAM_SHARED_SECRET }}"
 ```
-appid: "331470"
-publishedfileid: "123456"
-visibility: "0"
-title: "Мой крутой мод"
-changenote: "Добавлены новые функции и исправлены ошибки."
-previewfile: "deploy/avatar.png"
-```
+
+5. Деплой
+Для деплоя необходимо перейти в раздел `Actions` репозитория, слева будет список workflow. Необходимо выбрать то название, которое было указано в `.yml` файле
+
+# Важные особенности
+1. Описание предмета, который будет загружен, берется из файла README.md в корне репозитория и конвертируется в Steam-формат с использованием библиотеки [`md2steam`](https://pypi.org/project/md2steam/1.0.1/)
+2. Если workflow *deploy_to_steam* используется отдельно от *lint_es_mod*, то важно в `deploy.yml` указать значение переменной `check_lint_status` равной `false`

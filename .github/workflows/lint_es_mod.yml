@@ -59,20 +59,6 @@ on:
         type: boolean
         default: true
 
-env:
-  SDK_VERSION: "${{ inputs.sdk_version }}"
-  GOOGLE_DRIVE_ID: "${{ inputs.google_drive_id }}"
-  ES_VER: "${{ inputs.es_ver }}"
-  PROJECT_NAME: "${{ inputs.project_name }}"
-  GRAMMAR_CHECK_FILES: "${{ inputs.grammar_check_files }}"
-  EXCLUSIONS: "${{ inputs.exclusions }}"
-  OUTPUT_TYPE: "${{ inputs.output_type }}"
-  FOLDER: "${{ inputs.folder }}"
-  MARKERS: "${{ inputs.markers }}"
-  RUN_MARKET_LINT: "${{ inputs.run_marker_lint }}"
-  RUN_TEXT_LINT: "${{ inputs.run_text_lint }}"
-  RUN_BASIC_LINT: "${{ inputs.run_basic_lint }}"
-
 jobs:
   download:
     runs-on: ubuntu-latest
@@ -85,34 +71,34 @@ jobs:
         uses: actions/cache@v3
         with:
           path: "~/.renpy-sdk"
-          key: ${{ runner.os }}-renpy-sdk-${{ env.SDK_VERSION }}
+          key: ${{ runner.os }}-renpy-sdk-${{ inputs.sdk_version }}
 
       - name: Download Ren'Py SDK
         if: steps.cache-sdk.outputs.cache-hit != true
         run: |
           mkdir -p ~/.renpy-sdk
-          wget -q "https://www.renpy.org/dl/${{ env.SDK_VERSION }}/renpy-${{ env.SDK_VERSION }}-sdk.tar.bz2"
-          tar -xjf "renpy-${{ env.SDK_VERSION }}-sdk.tar.bz2" -C ~/.renpy-sdk
-          rm "renpy-${{ env.SDK_VERSION }}-sdk.tar.bz2"
+          wget -q "https://www.renpy.org/dl/${{ inputs.sdk_version }}/renpy-${{ inputs.sdk_version }}-sdk.tar.bz2"
+          tar -xjf "renpy-${{ inputs.sdk_version }}-sdk.tar.bz2" -C ~/.renpy-sdk
+          rm "renpy-${{ inputs.sdk_version }}-sdk.tar.bz2"
 
       - name: Set up cache for Game
         id: cache-game
         uses: actions/cache@v3
         with:
           path: "./game_files"
-          key: ${{ runner.os }}-everlasting-summer-${{ env.ES_VER }}-${{ env.GOOGLE_DRIVE_ID }}
+          key: ${{ runner.os }}-everlasting-summer-${{ inputs.es_ver }}-${{ inputs.google_drive_id }}
 
       - name: Download Everlasting Summer
         if: steps.cache-game.outputs.cache-hit != true
         run: |
           mkdir -p ./game_files
           pip install gdown
-          gdown --id "${{ env.GOOGLE_DRIVE_ID }}" -O "Everlasting Summer.zip"
+          gdown --id "${{ inputs.google_drive_id }}" -O "Everlasting Summer.zip"
           unzip -q "Everlasting Summer.zip" -d "./game_files"
           rm "Everlasting Summer.zip"
 
   marker-lint:
-    if: ${{ inputs.run_marker_lint == true }}
+    if: ${{ inputs.run_marker_lint }}
     runs-on: ubuntu-latest
     needs: download
     steps:
@@ -122,11 +108,11 @@ jobs:
       - name: Run Marker Linter
         uses: zImpact/renpy_marker_linter@v1.0.2
         with:
-          folder: "${{ env.FOLDER }}"
-          markers: "${{ env.MARKERS }}"
+          folder: "${{ inputs.folder }}"
+          markers: "${{ inputs.markers }}"
 
   text-lint:
-    if: ${{ inputs.run_text_lint == true }}
+    if: ${{ inputs.run_text_lint }}
     runs-on: ubuntu-latest
     needs: download
     steps:
@@ -136,12 +122,12 @@ jobs:
       - name: Run Text Linter
         uses: zImpact/renpy_text_linter@v1.0.11
         with:
-          files: "${{ env.GRAMMAR_CHECK_FILES }}"
-          exclusions: "${{ env.EXCLUSIONS }}"
-          output_type: "${{ env.OUTPUT_TYPE }}"
+          files: "${{ inputs.grammar_check_files }}"
+          exclusions: "${{ inputs.exclusions }}"
+          output_type: "${{ inputs.output_type }}"
 
   basic-lint:
-    if: ${{ inputs.run_basic_lint == true }}
+    if: ${{ inputs.run_basic_lint }}
     runs-on: ubuntu-latest
     needs: download
     steps:
@@ -153,25 +139,25 @@ jobs:
         uses: actions/cache@v3
         with:
           path: "~/.renpy-sdk"
-          key: ${{ runner.os }}-renpy-sdk-${{ env.SDK_VERSION }}
+          key: ${{ runner.os }}-renpy-sdk-${{ inputs.sdk_version }}
 
       - name: Set up cache for Game
         id: cache-game
         uses: actions/cache@v3
         with:
           path: "./game_files"
-          key: ${{ runner.os }}-everlasting-summer-${{ env.ES_VER }}-${{ env.GOOGLE_DRIVE_ID }}
+          key: ${{ runner.os }}-everlasting-summer-${{ inputs.es_ver }}-${{ inputs.google_drive_id }}
 
       - name: Copy mod files to game directory
         run: |
-          mkdir -p "./game_files/Everlasting Summer/game/${{ env.PROJECT_NAME }}"
-          rsync -av --exclude='game_files' --exclude='.git' . "./game_files/Everlasting Summer/game/${{ env.PROJECT_NAME }}"
+          mkdir -p "./game_files/Everlasting Summer/game/${{ inputs.project_name }}"
+          rsync -av --exclude='game_files' --exclude='.git' . "./game_files/Everlasting Summer/game/${{ inputs.project_name }}"
           echo "Folder contents:"
           ls "./game_files/Everlasting Summer/game"
 
       - name: Run Ren'Py Lint
         run: |
-          ~/.renpy-sdk/renpy-${{ env.SDK_VERSION }}-sdk/renpy.sh "./game_files/Everlasting Summer/game/" lint lint_report.txt
+          ~/.renpy-sdk/renpy-${{ inputs.sdk_version }}-sdk/renpy.sh "./game_files/Everlasting Summer/game/" lint lint_report.txt
         shell: bash
 
       - name: Display Lint Report

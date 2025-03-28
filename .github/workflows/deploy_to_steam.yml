@@ -17,6 +17,11 @@ on:
         required: false
         type: string
         default: "main"
+      check_lint_status:
+        description: "Зависимость деплоя от статуса basic-lint"
+        required: false
+        type: boolean
+        default: true
     secrets:
       STEAM_SHARED_SECRET:
         description: "Steam Shared Secret"
@@ -45,6 +50,7 @@ jobs:
             deploy_to_steam.sh
 
       - name: Check lint status
+        if: ${{ inputs.check_lint_status }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
