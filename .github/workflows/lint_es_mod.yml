@@ -74,7 +74,7 @@ jobs:
           key: ${{ runner.os }}-renpy-sdk-${{ inputs.sdk_version }}
 
       - name: Download Ren'Py SDK
-        if: steps.cache-sdk.outputs.cache-hit != true
+        if: steps.cache-sdk.outputs.cache-hit != 'true'
         run: |
           mkdir -p ~/.renpy-sdk
           wget -q "https://www.renpy.org/dl/${{ inputs.sdk_version }}/renpy-${{ inputs.sdk_version }}-sdk.tar.bz2"
@@ -89,7 +89,7 @@ jobs:
           key: ${{ runner.os }}-everlasting-summer-${{ inputs.es_ver }}-${{ inputs.google_drive_id }}
 
       - name: Download Everlasting Summer
-        if: steps.cache-game.outputs.cache-hit != true
+        if: steps.cache-game.outputs.cache-hit != 'true'
         run: |
           mkdir -p ./game_files
           pip install gdown
