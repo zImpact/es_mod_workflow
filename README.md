@@ -59,10 +59,11 @@ jobs:
 * `grammar_check_files`: список файлов для проверки в шаге `Text Lint`. Возможные варианты:
     * Проверка одного файла
       ```yaml
-        grammar_check_files: code/scenario.rpy```
+        grammar_check_files: code/scenario.rpy
+      ```
     * Проверка нескольких файлов
       ```yaml
-      grammar_check_files: |
+      grammar_check_files: >-
           code/bsar_sotp_scenario.rpy
           code/bsar_insomnia_scenario.rpy
       ```
