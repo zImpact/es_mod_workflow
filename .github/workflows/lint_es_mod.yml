@@ -167,7 +167,6 @@ jobs:
 
       - name: Display Lint Report
         run: |
-          echo "### Отчет шага Basic Lint" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
           cat lint_report.txt >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
