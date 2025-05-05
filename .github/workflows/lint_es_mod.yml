@@ -58,6 +58,11 @@ on:
         required: false
         type: boolean
         default: true
+      run_code_lint:
+        description: "Запуск code-lint"
+        required: false
+        type: boolean
+        default: true
 
 jobs:
   download:
@@ -166,3 +171,17 @@ jobs:
           echo '```' >> $GITHUB_STEP_SUMMARY
           cat lint_report.txt >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
+
+  code-lint:
+    if: ${{ inputs.run_code_lint }}
+    runs-on: ubuntu-latest
+    needs: download
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Run Code Linter
+        uses: zImpact/renpy_code_linter@v1.0.0
+        with:
+          folder: "${{ inputs.folder }}"
+          output_type: "${{ inputs.output_type }}"
