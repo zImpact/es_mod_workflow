@@ -180,7 +180,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Run Code Linter
-        uses: zImpact/renpy_code_linter@v1.0.0
+        uses: zImpact/renpy_code_linter@v1.0.1
         with:
           folder: "${{ inputs.folder }}"
           output_type: "${{ inputs.output_type }}"
