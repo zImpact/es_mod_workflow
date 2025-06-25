@@ -22,6 +22,11 @@ on:
         required: false
         type: boolean
         default: true
+      sdk_version:
+        description: "Версия Ren'Py SDK"
+        required: true
+        type: string
+        default: "8.1.3"
     secrets:
       STEAM_SHARED_SECRET:
         description: "Steam Shared Secret"
@@ -73,6 +78,26 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y python3 python3-pip
           pip3 install md2steam
+
+      - name: Set up cache for SDK
+        id: cache-sdk
+        uses: actions/cache@v3
+        with:
+          path: "~/.renpy-sdk"
+          key: ${{ runner.os }}-renpy-sdk-${{ inputs.sdk_version }}
+
+      - name: Download Ren'Py SDK
+        if: steps.cache-sdk.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p ~/.renpy-sdk
+          wget -q "https://www.renpy.org/dl/${{ inputs.sdk_version }}/renpy-${{ inputs.sdk_version }}-sdk.tar.bz2"
+          tar -xjf "renpy-${{ inputs.sdk_version }}-sdk.tar.bz2" -C ~/.renpy-sdk
+          rm "renpy-${{ inputs.sdk_version }}-sdk.tar.bz2"
+
+      - name: Compile .rpy to .rpyc
+        run: |
+          ~/.renpy-sdk/renpy-${{ inputs.sdk_version }}-sdk/renpy.sh ./ compile
+        shell: bash
         
       - name: Generate Steam Guard 2FA code
         id: steam-2fa
