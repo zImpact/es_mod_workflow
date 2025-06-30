@@ -22,6 +22,21 @@ on:
         required: false
         type: boolean
         default: true
+      sdk_version:
+        description: "Версия Ren'Py SDK"
+        required: true
+        type: string
+        default: "8.1.3"
+      google_drive_id:
+        description: "ID Google Drive архива с Бесконечным летом"
+        required: true
+        type: string
+        default: "1MM3B6VRDXJDwQphj_sWuG8AthqIu8s-y"
+      es_ver:
+        description: "Версия архива Бесконечного лета для кэширования"
+        required: true
+        type: string
+        default: "1"
     secrets:
       STEAM_SHARED_SECRET:
         description: "Steam Shared Secret"
@@ -57,16 +72,62 @@ jobs:
         run: |
           chmod +x ./scripts/check_lint_status.sh
           ./scripts/check_lint_status.sh "${{ inputs.lint_workflow_file }}" "${{ inputs.branch }}" "basic-lint"
+      
+      - name: Set up cache for SDK
+        id: cache-sdk
+        uses: actions/cache@v3
+        with:
+          path: "~/.renpy-sdk"
+          key: ${{ runner.os }}-renpy-sdk-${{ inputs.sdk_version }}
 
-      - name: Install SteamCMD
-        uses: CyberAndrii/setup-steamcmd@v1.2.0
+      - name: Download Ren'Py SDK
+        if: steps.cache-sdk.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p ~/.renpy-sdk
+          wget -q "https://www.renpy.org/dl/${{ inputs.sdk_version }}/renpy-${{ inputs.sdk_version }}-sdk.tar.bz2"
+          tar -xjf "renpy-${{ inputs.sdk_version }}-sdk.tar.bz2" -C ~/.renpy-sdk
+          rm "renpy-${{ inputs.sdk_version }}-sdk.tar.bz2"
 
+      - name: Set up cache for Game
+        id: cache-game
+        uses: actions/cache@v3
+        with:
+          path: "./game_files"
+          key: ${{ runner.os }}-everlasting-summer-${{ inputs.es_ver }}-${{ inputs.google_drive_id }}
+      
+      - name: Download Everlasting Summer
+        if: steps.cache-game.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p ./game_files
+          pip install gdown
+          gdown --id "${{ inputs.google_drive_id }}" -O "Everlasting Summer.zip"
+          unzip -q "Everlasting Summer.zip" -d "./game_files"
+          rm "Everlasting Summer.zip"
+      
       - name: Install jq and yq
         run: |
           sudo apt-get update
           sudo apt-get install -y jq
           sudo wget https://github.com/mikefarah/yq/releases/download/v4.30.8/yq_linux_amd64 -O /usr/local/bin/yq
           sudo chmod +x /usr/local/bin/yq
+      
+      - name: Copy mod files to game directory
+        run: |
+          PROJECT_NAME=$(yq eval '.project_name' '${{ inputs.steam_config_path }}')
+          mkdir -p "./game_files/Everlasting Summer/game/$PROJECT_NAME"
+          rsync -av --exclude='game_files' --exclude='.git' . "./game_files/Everlasting Summer/game/$PROJECT_NAME"
+      
+      - name: Compile Ren'Py scripts
+        run: |
+          ~/.renpy-sdk/renpy-${{ inputs.sdk_version }}-sdk/renpy.sh "./game_files/Everlasting Summer/game/" compile
+      
+      - name: Copy compiled files to repository
+        run: |
+          PROJECT_NAME=$(yq eval '.project_name' '${{ inputs.steam_config_path }}')
+          rsync -av "./game_files/Everlasting Summer/game/$PROJECT_NAME/" .
+
+      - name: Install SteamCMD
+        uses: CyberAndrii/setup-steamcmd@v1.2.0
 
       - name: Setup Python and install md2steam
         run: |
