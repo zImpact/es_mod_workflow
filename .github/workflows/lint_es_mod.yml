@@ -65,47 +65,17 @@ on:
         default: true
 
 jobs:
-  download:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Set up cache for SDK
-        id: cache-sdk
-        uses: actions/cache@v3
-        with:
-          path: "~/.renpy-sdk"
-          key: ${{ runner.os }}-renpy-sdk-${{ inputs.sdk_version }}
-
-      - name: Download Ren'Py SDK
-        if: steps.cache-sdk.outputs.cache-hit != 'true'
-        run: |
-          mkdir -p ~/.renpy-sdk
-          wget -q "https://www.renpy.org/dl/${{ inputs.sdk_version }}/renpy-${{ inputs.sdk_version }}-sdk.tar.bz2"
-          tar -xjf "renpy-${{ inputs.sdk_version }}-sdk.tar.bz2" -C ~/.renpy-sdk
-          rm "renpy-${{ inputs.sdk_version }}-sdk.tar.bz2"
-
-      - name: Set up cache for Game
-        id: cache-game
-        uses: actions/cache@v3
-        with:
-          path: "./game_files"
-          key: ${{ runner.os }}-everlasting-summer-${{ inputs.es_ver }}-${{ inputs.google_drive_id }}
-
-      - name: Download Everlasting Summer
-        if: steps.cache-game.outputs.cache-hit != 'true'
-        run: |
-          mkdir -p ./game_files
-          pip install gdown
-          gdown --id "${{ inputs.google_drive_id }}" -O "Everlasting Summer.zip"
-          unzip -q "Everlasting Summer.zip" -d "./game_files"
-          rm "Everlasting Summer.zip"
+  download-tools:
+    uses: ./.github/workflows/download_tools.yml
+    with:
+      sdk_version: ${{ inputs.sdk_version }}
+      google_drive_id: ${{ inputs.google_drive_id }}
+      es_ver: ${{ inputs.es_ver }}
 
   marker-lint:
     if: ${{ inputs.run_marker_lint }}
     runs-on: ubuntu-latest
-    needs: download
+    needs: download-tools
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -119,7 +89,7 @@ jobs:
   text-lint:
     if: ${{ inputs.run_text_lint }}
     runs-on: ubuntu-latest
-    needs: download
+    needs: download-tools
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -134,7 +104,7 @@ jobs:
   basic-lint:
     if: ${{ inputs.run_basic_lint }}
     runs-on: ubuntu-latest
-    needs: download
+    needs: download-tools
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -174,7 +144,7 @@ jobs:
   code-lint:
     if: ${{ inputs.run_code_lint }}
     runs-on: ubuntu-latest
-    needs: download
+    needs: download-tools
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
